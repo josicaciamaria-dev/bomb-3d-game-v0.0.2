@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Admin - Controle de Salas</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #111; color: #eee; }
+        .panel { background: #222; padding: 20px; border-radius: 8px; max-width: 700px; margin: auto; border: 1px solid #444; }
+        .room-card { background: #333; padding: 15px; margin: 15px 0; border-radius: 6px; border-left: 5px solid #27ae60; }
+        button { padding: 8px 12px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+        .btn-revive { background: #2980b9; color: white; }
+        .btn-delete { background: #c0392b; color: white; }
+        .btn-global { background: #d35400; color: white; width: 100%; padding: 15px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <h2>Controle Central Admin (Multi-Salas)</h2>
+        <button class="btn-global" onclick="forcarResetGlobal()">🔄 FORÇAR RESET GLOBAL (Reviver absolutamente todos)</button>
+        <h3>Salas Ativas:</h3>
+        <div id="admin-rooms-container">Buscando informações das salas no Firebase...</div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmAHbbAhGYGh9ZmO418eO4j82SFidRnYg",
+            authDomain: "servidor-5e967.firebaseapp.com",
+            databaseURL: "https://servidor-5e967-default-rtdb.firebaseio.com",
+            projectId: "servidor-5e967",
+            storageBucket: "servidor-5e967.firebasestorage.app",
+            messagingSenderId: "215182053595",
+            appId: "1:215182053595:web:61e72d80665def8e487cfe",
+            measurementId: "G-RR96ECCHZ8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        db.ref('rooms').on('value', (snapshot) => {
+            const rooms = snapshot.val() || {};
+            const container = document.getElementById('admin-rooms-container');
+            container.innerHTML = "";
+
+            for (let roomId in rooms) {
+                const room = rooms[roomId];
+                const players = room.players || {};
+                let pNames = Object.keys(players).map(id => players[id].name + (players[id].isAlive ? " (Vivo)" : " (Morto)")).join(", ");
+
+                let card = document.createElement('div');
+                card.className = "room-card";
+                card.innerHTML = `
+                    <h4>Sala: ${room.name} [Status: ${room.status}]</h4>
+                    <p><strong>Jogadores:</strong> ${pNames || 'Nenhum jogador na sala'}</p>
+                    <p><strong>Bomba com:</strong> ${room.gameState?.bombHolder || 'Ninguém'} | <strong>Tempo:</strong> ${room.gameState?.timer || 0}s</p>
+                    <button class="btn-revive" onclick="reviverSala('${roomId}')">Reviver Jogadores Desta Sala</button>
+                    <button class="btn-delete" onclick="deletarSala('${roomId}')">Excluir Sala</button>
+                `;
+                container.appendChild(card);
+            }
+        });
+
+        function reviverSala(roomId) {
+            db.ref(`rooms/${roomId}/players`).once('value', snap => {
+                const players = snap.val() || {};
+                for(let id in players) {
+                    db.ref(`rooms/${roomId}/players/${id}`).update({ isAlive: true });
+                }
+            });
+            db.ref(`rooms/${roomId}/gameState`).update({ timer: 15, isRunning: true });
+        }
+
+        function deletarSala(roomId) {
+            if(confirm("Deseja mesmo derrubar essa sala?")) {
+                db.ref(`rooms/${roomId}`).remove();
+            }
+        }
+
+        function forcarResetGlobal() {
+            db.ref('rooms').once('value', snap => {
+                const rooms = snap.val() || {};
+                for(let roomId in rooms) {
+                    reviverSala(roomId);
+                }
+                alert("Sinal enviado!");
+            });
+        }
+    </script>
+</body>
+</html>
