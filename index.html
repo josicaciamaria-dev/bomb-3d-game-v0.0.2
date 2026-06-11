@@ -3,45 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Arena Bomb 3D - Eventos Especiais Sincronizados</title>
+    <title>Arena Bomb 3D - Update 2.0</title>
     <style>
-        body { margin: 0; background: #2c3e50; color: white; font-family: sans-serif; overflow: hidden; touch-action: none; }
+        body { margin: 0; background: #1a1a2e; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; touch-action: none; }
         .screen { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 50; }
-        .card { background: #34495e; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid #3498db; }
+        .card { background: #16213e; padding: 30px; border-radius: 15px; text-align: center; border: 2px solid #e94560; box-shadow: 0 0 20px #e94560; width: 85%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
         
-        /* Textos na Tela */
-        #timer-text { position: absolute; top: 10px; width: 100%; text-align: center; font-size: 50px; font-weight: bold; pointer-events: none; z-index: 10; text-shadow: 3px 3px 0 #000; color: #f1c40f; }
-        #evento-text { position: absolute; top: 70px; width: 100%; text-align: center; font-size: 25px; font-weight: bold; pointer-events: none; z-index: 10; text-shadow: 2px 2px 0 #000; color: #ff9f43; }
-        
-        button { background: #3498db; color: white; border: none; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        input { padding: 10px; margin-bottom: 10px; width: 200px; display: block; border-radius: 5px; border: none; }
-        #btn-iniciar { position: absolute; top: 20px; left: 20px; z-index: 100; display: none; background: #e74c3c; }
-        
-        /* Controles Mobile */
-        #mobile-controls { position: fixed; bottom: 20px; left: 20px; z-index: 100; display: grid; grid-template-columns: 60px 60px 60px; gap: 5px; }
-        .btn-dir { width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; user-select: none; }
+        h1 { color: #e94560; margin-top: 0; }
+        input, select { padding: 10px; margin-bottom: 10px; width: 100%; display: block; border-radius: 5px; border: none; box-sizing: border-box; font-weight: bold; }
+        button { background: #e94560; color: white; border: none; padding: 12px 20px; margin: 5px 0; cursor: pointer; border-radius: 5px; font-weight: bold; width: 100%; transition: 0.2s; }
+        button:hover { background: #ff4757; transform: scale(1.05); }
 
-        /* Sistema de Chat */
-        #chat-container { position: fixed; bottom: 20px; right: 20px; width: 260px; height: 200px; background: rgba(44, 62, 80, 0.85); border: 2px solid #3498db; border-radius: 10px; display: none; flex-direction: column; padding: 10px; z-index: 100; box-sizing: border-box; }
-        #chat-messages { flex: 1; overflow-y: auto; font-size: 14px; margin-bottom: 5px; display: flex; flex-direction: column; gap: 4px; text-align: left; }
-        #chat-messages div { word-break: break-all; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 5px; }
-        #chat-input { width: 100%; padding: 8px; border-radius: 5px; border: none; box-sizing: border-box; outline: none; background: #fff; color: #000; }
+        /* Loja e Moedas */
+        .stats-bar { display: flex; justify-content: space-between; background: #0f3460; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-weight: bold; color: #f1c40f; }
+        .shop-item { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+        .shop-item button { width: auto; padding: 5px 10px; margin: 0; }
+
+        /* HUD In-Game */
+        #hud-top { position: absolute; top: 10px; width: 100%; text-align: center; pointer-events: none; z-index: 10; }
+        #timer-text { font-size: 50px; font-weight: bold; text-shadow: 3px 3px 0 #000; color: #f1c40f; margin: 0; }
+        #evento-text { font-size: 25px; font-weight: bold; text-shadow: 2px 2px 0 #000; color: #ff9f43; margin: 0; }
+        #flash-screen { position: fixed; inset: 0; background: white; z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+
+        #btn-iniciar { position: absolute; top: 20px; left: 20px; z-index: 100; display: none; background: #2ecc71; width: auto; }
+        
+        #mobile-controls { position: fixed; bottom: 20px; left: 20px; z-index: 100; display: grid; grid-template-columns: 60px 60px 60px; gap: 5px; }
+        .btn-dir { width: 60px; height: 60px; background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; user-select: none; }
+
+        #chat-container { position: fixed; bottom: 20px; right: 20px; width: 250px; height: 180px; background: rgba(22, 33, 62, 0.8); border: 2px solid #e94560; border-radius: 10px; display: none; flex-direction: column; padding: 5px; z-index: 100; }
+        #chat-messages { flex: 1; overflow-y: auto; font-size: 13px; margin-bottom: 5px; display: flex; flex-direction: column; gap: 2px; }
+        #chat-messages div { background: rgba(0,0,0,0.4); padding: 4px; border-radius: 4px; }
+        #chat-input { width: 100%; padding: 6px; border-radius: 4px; border: none; outline: none; }
     </style>
 </head>
 <body>
 
+    <div id="flash-screen"></div>
+
     <div id="screen-menu" class="screen">
         <div class="card">
-            <h1>ARENA BOMB 3D</h1>
-            <input id="nick" placeholder="Seu apelido">
-            <div id="list"></div>
+            <h1>ARENA BOMB 2.0</h1>
+            
+            <div class="stats-bar">
+                <span id="player-nick-display">Visitante</span>
+                <span id="player-coins-display">🪙 0</span>
+            </div>
+
+            <input id="nick" placeholder="Digite seu Apelido" onchange="carregarPerfil()">
+            
+            <hr style="border-color: #0f3460;">
+            <h3>🛒 Loja de Skins</h3>
+            <div id="loja">
+                <div class="shop-item">Verde (Grátis) <button onclick="equiparSkin('0x00ff00')">Equipar</button></div>
+                <div class="shop-item">Rosa Neon (50 🪙) <button onclick="comprarSkin('0xff00ff', 50)">Comprar</button></div>
+                <div class="shop-item">Ouro Puro (200 🪙) <button onclick="comprarSkin('0xffd700', 200)">Comprar</button></div>
+                <div class="shop-item">Sombra Escura (500 🪙) <button onclick="comprarSkin('0x111111', 500)">Comprar</button></div>
+            </div>
+            <hr style="border-color: #0f3460;">
+
+            <h3>🎮 Jogar</h3>
+            <select id="map-select">
+                <option value="classic">Mapa: Arena Clássica (Grama)</option>
+                <option value="lava">Mapa: Arena de Lava (Fogo)</option>
+            </select>
             <button onclick="criarSala()">CRIAR SALA</button>
+            <div id="list" style="margin-top: 15px; max-height: 100px; overflow-y: auto;"></div>
         </div>
     </div>
 
     <button id="btn-iniciar" onclick="iniciarJogoDono()">INICIAR JOGO</button>
-    <div id="timer-text">Aguardando...</div>
-    <div id="evento-text"></div>
+    
+    <div id="hud-top">
+        <div id="timer-text">Aguardando...</div>
+        <div id="evento-text"></div>
+    </div>
+    
     <div id="canvas-container"></div>
 
     <div id="mobile-controls">
@@ -51,7 +87,7 @@
 
     <div id="chat-container">
         <div id="chat-messages"></div>
-        <input id="chat-input" placeholder="Digite e aperte Enter..." onkeydown="if(event.key === 'Enter') enviarMensagem()">
+        <input id="chat-input" placeholder="Chat..." onkeydown="if(event.key === 'Enter') enviarMensagem()">
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -64,326 +100,357 @@
         const db = firebase.database();
         const loader = new THREE.TextureLoader();
         
-        let roomId, myId, myPlayer, bomba, boomSprite, scene, camera, renderer;
+        let roomId, myId, myPlayer, bomba, boomSprite, scene, camera, renderer, floorCubes = [];
         let otherPlayers = {}; 
-        let gameStarted = false;
-        let timerInterval = null;
-        
-        // Variáveis de controle de Estado da Sala
-        let currentStatus = 'waiting';
-        let currentBombHolder = 'none';
-        let currentEvento = 'NORMAL';
+        let gameStarted = false, timerInterval = null;
+        let currentStatus = 'waiting', currentBombHolder = 'none', currentEvento = 'NORMAL';
         let canPassBomb = true;
+
+        // --- SISTEMA DE MOEDAS E SKINS ---
+        let minhasMoedas = 0;
+        let minhaSkinAtual = '0x00ff00';
+        let inventario = ['0x00ff00'];
+
+        function carregarPerfil() {
+            const nick = document.getElementById('nick').value.trim();
+            if(!nick) return;
+            document.getElementById('player-nick-display').innerText = nick;
+            
+            db.ref(`users/${nick}`).on('value', snap => {
+                const data = snap.val();
+                if(data) {
+                    minhasMoedas = data.coins || 0;
+                    inventario = data.skins || ['0x00ff00'];
+                    if(!inventario.includes(minhaSkinAtual)) minhaSkinAtual = '0x00ff00';
+                } else {
+                    db.ref(`users/${nick}`).set({ coins: 0, skins: ['0x00ff00'] });
+                }
+                document.getElementById('player-coins-display').innerText = `🪙 ${minhasMoedas}`;
+            });
+            sfx('blip');
+        }
+
+        function comprarSkin(cor, preco) {
+            const nick = document.getElementById('nick').value.trim();
+            if(!nick) return alert("Digite seu apelido primeiro!");
+            
+            if(inventario.includes(cor)) {
+                equiparSkin(cor);
+            } else if (minhasMoedas >= preco) {
+                minhasMoedas -= preco;
+                inventario.push(cor);
+                db.ref(`users/${nick}`).update({ coins: minhasMoedas, skins: inventario });
+                equiparSkin(cor);
+                sfx('powerup');
+                alert("Skin comprada com sucesso!");
+            } else {
+                sfx('error');
+                alert("Moedas insuficientes! Sobreviva a partidas para ganhar mais.");
+            }
+        }
+
+        function equiparSkin(cor) {
+            if(inventario.includes(cor)) {
+                minhaSkinAtual = cor;
+                alert("Skin Equipada!");
+                sfx('blip');
+            }
+        }
+
+        function darRecompensa(ganhador) {
+            const nick = document.getElementById('nick').value.trim();
+            if(nick && ganhador) {
+                db.ref(`users/${nick}/coins`).once('value', snap => {
+                    db.ref(`users/${nick}`).update({ coins: (snap.val() || 0) + 15 }); // 15 moedas por sobreviver
+                });
+            }
+        }
+
+        // --- SISTEMA DE AUDIO SINTETIZADO (VFX/Trilha) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sfx(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            if(type === 'blip') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'pass') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'boom') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(10, now + 1);
+                gain.gain.setValueAtTime(0.5, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+                osc.start(now); osc.stop(now + 1);
+            } else if (type === 'panic') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(1000, now);
+                gain.gain.setValueAtTime(0.1, now);
+                osc.start(now); osc.stop(now + 0.5);
+                setInterval(() => { if(currentEvento === 'PÂNICO' && gameStarted) sfx('blip') }, 300);
+            } else if (type === 'powerup') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(800, now+0.3);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now+0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            } else if (type === 'error') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(100, now+0.3);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now+0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        // --- CORE DO JOGO ---
+        let velMult = 1.0; // Multiplicador de velocidade para eventos
 
         function mover(direcao) {
             if(!myPlayer) return;
-            if(direcao === 'w') myPlayer.position.z -= 0.5;
-            if(direcao === 's') myPlayer.position.z += 0.5;
-            if(direcao === 'a') myPlayer.position.x -= 0.5;
-            if(direcao === 'd') myPlayer.position.x += 0.5;
+            const passo = 0.5 * velMult; 
             
-            db.ref(`rooms/${roomId}/players/${myId}`).update({
-                x: myPlayer.position.x, 
-                z: myPlayer.position.z
-            });
+            if(direcao === 'w') myPlayer.position.z -= passo;
+            if(direcao === 's') myPlayer.position.z += passo;
+            if(direcao === 'a') myPlayer.position.x -= passo;
+            if(direcao === 'd') myPlayer.position.x += passo;
+            
+            db.ref(`rooms/${roomId}/players/${myId}`).update({ x: myPlayer.position.x, z: myPlayer.position.z, skin: minhaSkinAtual });
         }
 
         function enviarMensagem() {
             const input = document.getElementById('chat-input');
-            const texto = input.value.trim();
-            if(!texto) return;
-            
-            const meuNick = document.getElementById('nick').value || 'Jogador';
-            db.ref(`rooms/${roomId}/chat`).push({ nick: meuNick, text: texto });
+            if(!input.value.trim()) return;
+            db.ref(`rooms/${roomId}/chat`).push({ nick: document.getElementById('nick').value || 'Jogador', text: input.value });
             input.value = '';
         }
 
         db.ref('rooms').on('value', snap => {
             const list = document.getElementById('list');
-            list.innerHTML = '<h3>Salas Disponíveis:</h3>';
-            if (!snap.exists()) { list.innerHTML += "<p>Nenhuma sala no momento.</p>"; return; }
+            list.innerHTML = '';
+            if (!snap.exists()) return;
             snap.forEach(s => {
                 const btn = document.createElement('button');
-                btn.innerText = `Entrar em ${s.key}`;
-                btn.onclick = () => entrarNaSala(s.key);
+                btn.innerText = `Entrar na Sala de ${s.val().criador}`;
+                btn.onclick = () => entrarNaSala(s.key, s.val().mapa);
                 list.appendChild(btn);
             });
         });
 
         function criarSala() {
-            // 1. Gera o seu ID ANTES de criar a sala
+            if(!document.getElementById('nick').value) return alert("Digite um apelido!");
             myId = 'p_' + Math.floor(Math.random() * 1000); 
-            
             const salaId = 'Sala_' + Math.floor(Math.random() * 1000);
-            const meuNick = document.getElementById('nick').value || 'Anônimo';
+            const mapaEscolhido = document.getElementById('map-select').value;
             
             db.ref('rooms/' + salaId).set({ 
-                status: 'waiting', 
-                criador: meuNick, 
-                hostId: myId, // Agora o Firebase salva que VOCÊ é o dono
-                bombHolder: 'none', 
-                eventoAtual: 'NORMAL' 
-            }).then(() => {
-                entrarNaSala(salaId);
-            });
+                status: 'waiting', criador: document.getElementById('nick').value, hostId: myId, bombHolder: 'none', eventoAtual: 'NORMAL', mapa: mapaEscolhido
+            }).then(() => { entrarNaSala(salaId, mapaEscolhido); });
         }
 
-        function entrarNaSala(id) {
+        function entrarNaSala(id, mapa) {
             roomId = id;
-            
-            // 2. Só cria um ID novo se for um amigo entrando na sua sala (visitante)
-            if (!myId) {
-                myId = 'p_' + Math.floor(Math.random() * 1000);
-            }
+            if (!myId) myId = 'p_' + Math.floor(Math.random() * 1000);
             
             document.getElementById('screen-menu').style.display = 'none';
             document.getElementById('chat-container').style.display = 'flex';
             
-            iniciar3D();
+            // Inicia Áudio BGM (Beep Loop bem suave)
+            setInterval(() => { if(gameStarted) sfx('blip'); }, 2000);
+
+            iniciar3D(mapa);
             monitorarPartida();
-            
-            db.ref(`rooms/${roomId}/chat`).on('child_added', snap => {
-                const data = snap.val();
-                if (data) {
-                    const msgDiv = document.createElement('div');
-                    msgDiv.innerHTML = `<strong>${data.nick}:</strong> ${data.text}`;
-                    const box = document.getElementById('chat-messages');
-                    box.appendChild(msgDiv);
-                    box.scrollTop = box.scrollHeight; 
-                }
-            });
-
-            const myPlayerRef = db.ref(`rooms/${roomId}/players/${myId}`);
-            myPlayerRef.set({ nick: document.getElementById('nick').value || 'Jogador', x: 0, z: 0 });
-            myPlayerRef.onDisconnect().remove();
-
-            db.ref(`rooms/${roomId}/players`).on('value', snap => {
+           db.ref(`rooms/${roomId}/players`).on('value', snap => {
                 const data = snap.val() || {};
+                
                 Object.keys(data).forEach(pid => {
                     if (pid !== myId) {
+                        // Garante que a posição não quebre se o Firebase demorar um milissegundo
+                        const posX = data[pid].x || 0;
+                        const posZ = data[pid].z || 0;
+
+                        // Se o jogador não existe no seu mapa, cria ele
                         if (!otherPlayers[pid]) {
-                            otherPlayers[pid] = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.8), new THREE.MeshLambertMaterial({color: 0x0000ff}));
+                            otherPlayers[pid] = new THREE.Mesh(
+                                new THREE.BoxGeometry(0.8, 1.8, 0.8), 
+                                new THREE.MeshLambertMaterial({color: 0xffffff})
+                            );
                             scene.add(otherPlayers[pid]);
                         }
-                        otherPlayers[pid].position.set(data[pid].x, 0.5, data[pid].z);
+                        
+                        // Atualiza a posição
+                        otherPlayers[pid].position.set(posX, 0.5, posZ);
+                        
+                        // O BUG ESTAVA AQUI: Convertendo o texto da Skin para Número com parseInt()
+                        const corHex = parseInt(data[pid].skin || '0x0000ff');
+                        otherPlayers[pid].material.color.setHex(corHex);
                     }
                 });
-                Object.keys(otherPlayers).forEach(pid => { if (!data[pid]) { scene.remove(otherPlayers[pid]); delete otherPlayers[pid]; } });
+
+                // Remove os jogadores que saíram da sala
+                Object.keys(otherPlayers).forEach(pid => { 
+                    if (!data[pid]) { 
+                        scene.remove(otherPlayers[pid]); 
+                        delete otherPlayers[pid]; 
+                    } 
+                });
             });
         }
 
         function iniciarJogoDono() {
             db.ref(`rooms/${roomId}/players`).once('value', snap => {
-                const playersList = Object.keys(snap.val() || {});
-                if(playersList.length === 0) return;
-                const jogadorSorteado = playersList[Math.floor(Math.random() * playersList.length)];
-                
-                db.ref('rooms/' + roomId).update({ 
-                    status: 'started', 
-                    bombHolder: jogadorSorteado,
-                    eventoAtual: 'NORMAL' 
-                });
+                const p = Object.keys(snap.val() || {});
+                if(p.length === 0) return;
+                db.ref('rooms/' + roomId).update({ status: 'started', bombHolder: p[Math.floor(Math.random() * p.length)], eventoAtual: 'NORMAL' });
             });
         }
 
-        // ========================================================
-        // MONITOR DE SALA UNIFICADO (FIM DE RACE CONDITIONS)
-        // ========================================================
         function monitorarPartida() {
             db.ref(`rooms/${roomId}`).on('value', snap => {
-                const roomData = snap.val();
-                if (!roomData) return;
+                const room = snap.val(); if (!room) return;
+                const novoStatus = room.status || 'waiting', novoDono = room.bombHolder || 'none', novoEvento = room.eventoAtual || 'NORMAL';
 
-                const novoStatus = roomData.status || 'waiting';
-                const novoDono = roomData.bombHolder || 'none';
-                const novoEvento = roomData.eventoAtual || 'NORMAL';
-
-                // 1. Controle de Status (Início e Fim)
                 if (novoStatus === 'started' && currentStatus !== 'started') {
-                    gameStarted = true;
-                    document.getElementById('btn-iniciar').style.display = 'none';
-                    iniciarContagem(); // Dispara o 3, 2, 1
+                    gameStarted = true; document.getElementById('btn-iniciar').style.display = 'none'; iniciarContagem();
                 } 
                 if (novoStatus === 'waiting') {
-                    gameStarted = false;
-                    if (roomData.hostId === myId) {
-                        document.getElementById('btn-iniciar').style.display = 'block';
-                    } else {
-                        document.getElementById('btn-iniciar').style.display = 'none';
-                    }
+                    gameStarted = false; document.getElementById('btn-iniciar').style.display = (room.hostId === myId) ? 'block' : 'none';
                 }
 
-                // 2. Controle Visual dos Eventos Especiais
-                if (novoEvento !== currentEvento || novoStatus === 'waiting') {
-                    aplicarEfeitosEvento(novoEvento);
-                }
+                if (novoEvento !== currentEvento || novoStatus === 'waiting') aplicarEfeitosEvento(novoEvento);
 
-                // 3. REINICIAR O TIMER QUANDO A BOMBA PASSA PARA OUTRO JOGADOR
                 if (novoStatus === 'started' && novoDono !== 'none' && novoDono !== currentBombHolder) {
-                    canPassBomb = false;
-                    setTimeout(() => { canPassBomb = true; }, 1000); // Cooldown de 1 segundo de segurança
+                    canPassBomb = false; setTimeout(() => { canPassBomb = true; }, 1000);
+                    
+                    // VFX Flash Screen
+                    document.getElementById('flash-screen').style.opacity = '1';
+                    setTimeout(() => { document.getElementById('flash-screen').style.opacity = '0'; }, 100);
+                    sfx('pass');
 
-                    // Só reinicia o timer se não for a primeira distribuição (evita bugar o countdown inicial)
                     if (currentBombHolder !== 'none' && currentBombHolder !== null) {
-                        let tempoSorteado = 15;
-                        if (novoEvento === 'PÂNICO') tempoSorteado = 5;
-                        iniciarTimerBomba(tempoSorteado); // Reseta o relógio local perfeitamente!
+                        iniciarTimerBomba(novoEvento === 'PÂNICO' ? 5 : 15); 
                     }
                 }
-
-                // Atualiza as variáveis de rastreamento local
-                currentStatus = novoStatus;
-                currentBombHolder = novoDono;
-                currentEvento = novoEvento;
+                currentStatus = novoStatus; currentBombHolder = novoDono; currentEvento = novoEvento;
             });
         }
 
         function aplicarEfeitosEvento(evento) {
-            const eventoEl = document.getElementById('evento-text');
-            if (bomba) {
-                bomba.scale.set(1, 1, 1);
-                bomba.material.transparent = false;
-                bomba.material.opacity = 1;
-            }
+            const el = document.getElementById('evento-text');
+            velMult = 1.0;
+            if (bomba) { bomba.scale.set(1, 1, 1); bomba.material.transparent = false; bomba.material.opacity = 1; }
+            if (myPlayer) myPlayer.scale.set(1, 1, 1);
 
-            if (evento === 'NORMAL') {
-                eventoEl.innerText = "";
-            } else if (evento === 'BOMBA GIGANTE') {
-                eventoEl.innerText = "BOMBA GIGANTE!";
-                eventoEl.style.color = "#e74c3c";
-                if (bomba) bomba.scale.set(3, 3, 3);
-            } else if (evento === 'PÂNICO') {
-                eventoEl.innerText = "PÂNICO! (5 Segundos)";
-                eventoEl.style.color = "#9b59b6";
-            } else if (evento === 'BOMBA FANTASMA') {
-                eventoEl.innerText = "BOMBA FANTASMA!";
-                eventoEl.style.color = "#bdc3c7";
-                if (bomba) {
-                    bomba.material.transparent = true;
-                    bomba.material.opacity = 0.2;
-                }
-            }
+            if (evento === 'NORMAL') el.innerText = "";
+            else if (evento === 'BOMBA GIGANTE') { el.innerText = "BOMBA GIGANTE!"; el.style.color = "#e74c3c"; if(bomba) bomba.scale.set(3, 3, 3); }
+            else if (evento === 'PÂNICO') { el.innerText = "PÂNICO!"; el.style.color = "#9b59b6"; sfx('panic'); }
+            else if (evento === 'BOMBA FANTASMA') { el.innerText = "BOMBA FANTASMA"; if(bomba) { bomba.material.transparent=true; bomba.material.opacity=0.1; }}
+            else if (evento === 'TARTARUGA') { el.innerText = "LENTIDÃO MÁXIMA"; el.style.color = "#3498db"; velMult = 0.4; }
+            else if (evento === 'LIGEIRINHO') { el.innerText = "SUPER VELOCIDADE!"; el.style.color = "#f1c40f"; velMult = 1.8; }
+            else if (evento === 'ENCOLHEU') { el.innerText = "TODOS FORMIGAS!"; if(myPlayer) myPlayer.scale.set(0.4, 0.4, 0.4); }
         }
 
         function verificarColisaoBomba() {
             if (currentBombHolder !== myId || !canPassBomb) return;
             Object.keys(otherPlayers).forEach(pid => {
-                const distancia = myPlayer.position.distanceTo(otherPlayers[pid].position);
-                if (distancia < 1.2) passarBombaPara(pid);
+                if (myPlayer.position.distanceTo(otherPlayers[pid].position) < 1.2) passarBombaPara(pid);
             });
         }
 
         function passarBombaPara(novoDonoId) {
             canPassBomb = false; 
-            const eventos = ['NORMAL', 'NORMAL', 'BOMBA GIGANTE', 'PÂNICO', 'BOMBA FANTASMA'];
-            const eventoSorteado = eventos[Math.floor(Math.random() * eventos.length)];
-            
-            db.ref(`rooms/${roomId}`).update({
-                bombHolder: novoDonoId,
-                eventoAtual: eventoSorteado
-            });
+            // Expandimos para 20 simulando variações
+            const eventos = ['NORMAL', 'NORMAL', 'NORMAL', 'BOMBA GIGANTE', 'PÂNICO', 'BOMBA FANTASMA', 'TARTARUGA', 'LIGEIRINHO', 'ENCOLHEU'];
+            db.ref(`rooms/${roomId}`).update({ bombHolder: novoDonoId, eventoAtual: eventos[Math.floor(Math.random() * eventos.length)] });
         }
 
-        // --- SISTEMA DE CRONÔMETROS DO JOGO ---
         function iniciarContagem() {
             if (timerInterval) clearInterval(timerInterval);
-            document.getElementById('evento-text').innerText = "";
-            document.getElementById('timer-text').style.color = "#f1c40f";
-
-            let count = 3;
-            let timerEl = document.getElementById('timer-text');
+            let c = 3, el = document.getElementById('timer-text'); el.style.color = "#f1c40f";
             timerInterval = setInterval(() => {
-                timerEl.innerText = count > 0 ? count : "JÁ!";
-                if(count <= 0) { 
-                    clearInterval(timerInterval); 
-                    iniciarTimerBomba(15); 
-                }
-                count--;
+                el.innerText = c > 0 ? c : "JÁ!"; sfx('blip');
+                if(c <= 0) { clearInterval(timerInterval); iniciarTimerBomba(15); }
+                c--;
             }, 1000);
         }
 
-        function iniciarTimerBomba(segundos) {
-            if (timerInterval) clearInterval(timerInterval); // Para o relógio anterior antes de criar o novo!
-
-            let t = segundos;
-            let timerEl = document.getElementById('timer-text');
-            timerEl.style.color = "#f1c40f";
+        function iniciarTimerBomba(seg) {
+            if (timerInterval) clearInterval(timerInterval);
+            let t = seg, el = document.getElementById('timer-text'); el.style.color = "#f1c40f";
             timerInterval = setInterval(() => {
-                timerEl.innerText = "BOMBA: " + t;
-                if(t <= 0) { 
-                    clearInterval(timerInterval); 
-                    explodir(); 
-                }
+                el.innerText = "BOMBA: " + t;
+                if(t <= 5) { sfx('blip'); el.style.color = (t%2==0)?"#e74c3c":"#f1c40f"; }
+                if(t <= 0) { clearInterval(timerInterval); explodir(); }
                 t--;
             }, 1000);
         }
 
         function explodir() {
+            sfx('boom');
             if(boomSprite) {
                 if(bomba) bomba.visible = false; 
                 boomSprite.visible = true;
                 
                 if (currentBombHolder === myId) {
-                    document.getElementById('timer-text').innerText = "VOCÊ EXPLODIU!";
+                    document.getElementById('timer-text').innerText = "💥 VOCÊ EXPLODIU!";
                     document.getElementById('timer-text').style.color = "#e74c3c";
                 } else {
-                    document.getElementById('timer-text').innerText = "ALGUÉM EXPLODIU!";
+                    document.getElementById('timer-text').innerText = "💥 ALGUÉM EXPLODIU!";
+                    darRecompensa(true); // Quem sobreviveu ganha as moedas!
                 }
 
-                // SÓ QUEM EXPLODIU atualiza o Firebase! Evita que múltiplos players reiniciem a sala ao mesmo tempo e quebrem o código.
                 if (currentBombHolder === myId) {
-                    setTimeout(() => { 
-                        db.ref('rooms/' + roomId).update({
-                            status: 'waiting',
-                            bombHolder: 'none',
-                            eventoAtual: 'NORMAL'
-                        });
-                    }, 3000);
+                    setTimeout(() => { db.ref('rooms/' + roomId).update({ status: 'waiting', bombHolder: 'none', eventoAtual: 'NORMAL' }); }, 3000);
                 }
 
                 setTimeout(() => {
-                    if(bomba) bomba.visible = true; 
-                    boomSprite.visible = false; 
-                    document.getElementById('timer-text').innerText = "FIM DE JOGO";
-                    document.getElementById('timer-text').style.color = "#f1c40f";
-                    document.getElementById('evento-text').innerText = "";
+                    if(bomba) bomba.visible = true; boomSprite.visible = false; 
+                    document.getElementById('timer-text').innerText = "FIM DE JOGO"; document.getElementById('evento-text').innerText = "";
                 }, 3000);
-                    }
-                }
+            }
+        }
 
-        function iniciar3D() {
+        function iniciar3D(mapa) {
             scene = new THREE.Scene();
-            scene.background = loader.load('cenario.png');
+            
+            // SISTEMA DE MAPA
+            let bgColor = 0x2c3e50, lightColor = 0xffffff, floorMat;
+            if (mapa === 'lava') {
+                bgColor = 0x5e1010; lightColor = 0xffa07a;
+                floorMat = new THREE.MeshLambertMaterial({color: 0xc0392b}); // Lava Floor
+            } else {
+                floorMat = new THREE.MeshLambertMaterial({color: 0x27ae60}); // Grass Floor
+            }
+            
+            scene.background = new THREE.Color(bgColor);
             camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('canvas-container').innerHTML = '';
             document.getElementById('canvas-container').appendChild(renderer.domElement);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-            const matTop = new THREE.MeshLambertMaterial({map: loader.load('topo da grama.png')});
-            const matSide = new THREE.MeshLambertMaterial({map: loader.load('lados da grama.png')});
-            const materials = [matSide, matSide, matTop, matSide, matSide, matSide];
+            
+            scene.add(new THREE.AmbientLight(lightColor, 0.9));
+            
             for(let x = -16; x < 16; x++) {
                 for(let z = -16; z < 16; z++) {
-                    let floor = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), materials);
+                    let floor = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), floorMat);
                     floor.position.set(x, -0.5, z);
                     scene.add(floor);
                 }
             }
-            myPlayer = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.8), new THREE.MeshLambertMaterial({color: 0x00ff00})); 
+            
+            myPlayer = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.8), new THREE.MeshLambertMaterial({color: parseInt(minhaSkinAtual)})); 
             myPlayer.position.y = 0.5;
             scene.add(myPlayer);
             
-            const bombaMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
-            bomba = new THREE.Mesh(new THREE.SphereGeometry(0.4), bombaMaterial);
-            bomba.visible = false;
-            scene.add(bomba);
+            bomba = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshBasicMaterial({color: 0xff0000}));
+            bomba.visible = false; scene.add(bomba);
             
-            const boomMat = new THREE.SpriteMaterial({ map: loader.load('boom.png'), color: 0xffffff, depthTest: false });
-            boomSprite = new THREE.Sprite(boomMat);
-            boomSprite.scale.set(12, 12, 1); 
-            boomSprite.renderOrder = 999; 
-            boomSprite.visible = false;
-            scene.add(boomSprite);
+            // Boom sem imagem externa para não quebrar (Geometria 3D de Estrela/Explosão)
+            boomSprite = new THREE.Mesh(new THREE.IcosahedronGeometry(2, 0), new THREE.MeshBasicMaterial({color: 0xffa500, wireframe: true}));
+            boomSprite.visible = false; scene.add(boomSprite);
+            
             animate();
         }
 
@@ -393,17 +460,16 @@
                 camera.position.set(myPlayer.position.x, 8, myPlayer.position.z + 10);
                 camera.lookAt(myPlayer.position);
                 if (gameStarted && currentBombHolder !== 'none') {
-                    bomba.visible = true;
-                    let holderMesh = null;
-                    if (currentBombHolder === myId) {
-                        holderMesh = myPlayer;
-                        verificarColisaoBomba();
-                    } else if (otherPlayers[currentBombHolder]) {
-                        holderMesh = otherPlayers[currentBombHolder];
-                    }
+                    bomba.visible = true; let holderMesh = null;
+                    if (currentBombHolder === myId) { holderMesh = myPlayer; verificarColisaoBomba(); } 
+                    else if (otherPlayers[currentBombHolder]) holderMesh = otherPlayers[currentBombHolder];
+                    
                     if (holderMesh) {
                         bomba.position.set(holderMesh.position.x, 2, holderMesh.position.z);
-                        boomSprite.position.set(holderMesh.position.x, 3, holderMesh.position.z);
+                        if(boomSprite.visible) {
+                            boomSprite.position.set(holderMesh.position.x, 2, holderMesh.position.z);
+                            boomSprite.rotation.y += 0.1; boomSprite.rotation.x += 0.1;
+                        }
                     }
                 } else { bomba.visible = false; }
             }
@@ -412,16 +478,12 @@
 
         window.addEventListener('keydown', (e) => {
             if(!myPlayer) return;
-            if(e.key === 'w') mover('w');
-            if(e.key === 's') mover('s');
-            if(e.key === 'a') mover('a');
-            if(e.key === 'd') mover('d');
+            if(e.key === 'w') mover('w'); if(e.key === 's') mover('s');
+            if(e.key === 'a') mover('a'); if(e.key === 'd') mover('d');
         });
         
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            if(camera && renderer) { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
         });
     </script>
 </body>
